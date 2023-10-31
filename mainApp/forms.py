@@ -29,3 +29,4 @@ class AnswerForm(forms.ModelForm):
         widgets = {
             'answer_text': forms.Textarea(attrs={'rows': 4}),
         }
+        

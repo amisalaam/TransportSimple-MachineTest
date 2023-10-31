@@ -1,86 +1,123 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Social Media Home</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
 </head>
+
 <body>
-
-<!-- Navigation Bar -->
-{% include 'navbar.html' %} 
-{% if messages %}
-<ul class="messages">
-    {% for message in messages %}
-    <li {% if message.tags %}class="{{ message.tags }}" {% endif %}
-        style="color: green; list-style: none;">{{ message }}</li>
-    {% endfor %}
-</ul>
-{% endif %}
-<div class="container mt-5">
-    <div class="row">
-        <div class="col-md-4">
-            <div class="card">
-                <div class="card-body">
-                    <h5 class="card-title">Sidebar</h5>
+    {% include 'navbar.html' %}
+    {% if messages %}
+    <ul class="messages">
+        {% for message in messages %}
+        <li {% if message.tags %}class="{{ message.tags }}" {% endif %} style="color: green; list-style: none;">{{ message }}</li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+    <div class="container mt-5">
+        <div class="row">
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title text-center">My Questions</h5>
+                        <hr class="my-4"> <!-- Add margin and a horizontal line for separation -->
+                        <ul class="list-group list-group-flush">
+                            {% if my_questions %}
+                                {% for my_question in my_questions %}
+                                    <li class="list-group-item">
+                                        {{ forloop.counter }}. {{ my_question.question_text }}
+                                    </li>
+                                {% endfor %}
+                            {% else %}
+                                <li>No Questions Asked by You</li>
+                            {% endif %}
+                        </ul>
+                    </div>
+                </div>
+                <div class="card mt-3">
+                    <div class="card-body">
+                        <h5 class="card-title text-center">My Answers</h5>
+                        <hr class="my-4"> <!-- Add margin and a horizontal line for separation -->
+                        <ul class="list-group list-group-flush">
+                            {% if my_answers%}
+                                {% for my_answer in my_answers%}
+                                    <li class="list-group-item">
+                                        {{ forloop.counter }}. {{ my_answer.answer_text }}
+                                    </li>
+                                {% endfor %}
+                            {% else %}
+                                <li>No answersAsked by You</li>
+                            {% endif %}
+                        </ul>
+                    </div>
                 </div>
             </div>
-        </div>
-        <div class="col-md-8">
-            <h5 class="card-title">Latest Feeds</h5>
-            {% for question in questions %}
-            <div class="card bg-dark text-white mt-3">
-                <div class="card-body">
-                    
-                    <!-- Sample post -->
-                    <div class="media">
-                        <div class="media-body">
-                            <img src="https://via.placeholder.com/40" class="mr-3 rounded-circle" alt="User Image">
-
-                            <h5 class="mt-0">{{ question.user }}</h5>
-                            {{ question.question_text }}
-                        </div>
-                        <p class="text-left">{{ question.posted_date }}</p>
-                    </div>
-
-                    <!-- Comment Box -->
-                    <div class="comment-box mt-3">
-                        <form method="post" action="{% url 'home' %}">
-                            {% csrf_token %}
-                            <div class="mb-3">
-                                <label for="comment" class="form-label">Do you know the answer</label>
-                                <input type="hidden" name="question_id" value="{{ question.id }}">
-                                {{ form.answer_text }}
-                            </div>
-                            <button type="submit" class="btn btn-primary">Post Answer</button>
-                        </form>
-                        <!-- Comments List -->
-                        <div class="comments-list mt-3">
-                            <h6 class="mb-3">Answers</h6>
-                            <!-- Sample comment -->
-                            <div class="media">
+            
+            <div class="col-md-8">
+                <h5 class="card-title">Latest Feeds</h5>
+                {% for question in questions %}
+                <div class="card  mt-3">
+                    <div class="card-body">
+                        <div class="media">
+                            <div class="media-body">
                                 <img src="https://via.placeholder.com/40" class="mr-3 rounded-circle" alt="User Image">
+                                <p class="mt-0">{{ question.user }}</p>
                                 
-                                <div class="media-body">
-                                    <h6 class="mt-0"> Answered by</h6>
-                                    This is a sample comment. You can loop through comments and display them here.
-                                </div>
+                                <h4>{{ question.question_text }}</h4>
+                                <p class="text-left">{{ question.posted_date }}</p>
                             </div>
-                            <!-- Add more comments here as needed -->
+                        </div>
+                        <div class="comment-box mt-3">
+                            <form method="post" action="{% url 'home' %}">
+                                {% csrf_token %}
+                                <div class="mb-3">
+                                    <input type="hidden" name="question_id" value="{{ question.id }}">
+                                    {{ form.answer_text }}
+                                </div>
+                                <button type="submit" class="btn btn-primary">Post Answer</button>
+                            </form>
+                            <div class="comments-list mt-3">
+                                <h5 class="mb-3 text-danger">Answers</h5>
+                                {% if not question.answers.all %}
+                                <p>No answers to show</p>
+                                {% else %}
+                                {% for answer in question.answers.all %}
+                                <div class="media">
+                                    <img src="https://via.placeholder.com/40" class="mr-3 rounded-circle" alt="User Image">
+                                    <div class="media-body">
+                                        <h6 class="mt-0">Answered by</h6>
+                                        <p>{{ answer.user }}</p>
+                                        {{ answer.answer_text }}
+                                        {% if user in answer.likes.all %}
+                                        <form method="post" action="{% url 'unlike_answer' answer.id %}">
+                                            {% csrf_token %}
+                                            <button type="submit" class="btn btn-danger btn-unlike">Unlike</button>
+                                        </form>
+                                        {% else %}
+                                        <form method="post" action="{% url 'like_answer' answer.id %}">
+                                            {% csrf_token %}
+                                            <button type="submit" class="btn btn-success btn-like">Like</button>
+                                        </form>
+                                        {% endif %}
+                                    </div>
+                                    <span class="like-count">{{ answer.likes.count }}</span>
+                                </div>
+                                {% endfor %}
+                                {% endif %}
+                            </div>
                         </div>
                     </div>
-
-                 
                 </div>
+                {% endfor %}
             </div>
-            {% endfor %}
         </div>
     </div>
-</div>
-
-<!-- Bootstrap JS and jQuery (Make sure you have these scripts included) -->
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.min.js"></script>
+    <!-- Bootstrap JS and jQuery (Make sure you have these scripts included) -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.min.js"></script>
 </body>
+
 </html>

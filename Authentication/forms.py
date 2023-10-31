@@ -8,16 +8,15 @@ class RegistrationalForm(forms.ModelForm):
         'class':'form-control',
     }
     ))
-
     confirm_password = forms.CharField(widget=forms.PasswordInput(attrs={
         'placeholder':'confirm Password',
        
     }
     ))
-
     class Meta:
         model = Account
         fields = ['full_name','email','password']
+
 
     
     def __init__(self, *args, **kwargs):
@@ -29,6 +28,8 @@ class RegistrationalForm(forms.ModelForm):
         
         for field in self.fields:
             self.fields[field].widget.attrs['class'] = 'form-control'
+
+
 
     def clean(self):
         cleaned_data = super(RegistrationalForm, self).clean()

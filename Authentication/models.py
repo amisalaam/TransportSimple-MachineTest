@@ -1,6 +1,8 @@
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 
+
+#MODIFIED MANAGER 
 class MyAccountManager(BaseUserManager):
     def create_user(self, full_name, email, password=None):
         if not email:
@@ -26,7 +28,9 @@ class MyAccountManager(BaseUserManager):
         user.is_superuser = True
         user.save(using=self._db)
         return user
+    
 
+#ADDED EXTRA FIELD TO USER MODEL
 class Account(AbstractBaseUser):
     full_name = models.CharField(max_length=50)
     email = models.EmailField(max_length=254, unique=True)
