@@ -2,12 +2,12 @@ from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 
 
-#MODIFIED MANAGER 
+# MODIFIED MANAGER
 class MyAccountManager(BaseUserManager):
     def create_user(self, full_name, email, password=None):
         if not email:
             raise ValueError('User must have an email address')
-        
+
         user = self.model(
             email=self.normalize_email(email),
             full_name=full_name,
@@ -15,7 +15,7 @@ class MyAccountManager(BaseUserManager):
         user.set_password(password)
         user.save(using=self._db)
         return user
-    
+
     def create_superuser(self, full_name, email, password):
         user = self.create_user(
             email=self.normalize_email(email),
@@ -28,9 +28,9 @@ class MyAccountManager(BaseUserManager):
         user.is_superuser = True
         user.save(using=self._db)
         return user
-    
 
-#ADDED EXTRA FIELD TO USER MODEL
+
+# ADDED EXTRA FIELD TO USER MODEL
 class Account(AbstractBaseUser):
     full_name = models.CharField(max_length=50)
     email = models.EmailField(max_length=254, unique=True)
@@ -48,9 +48,9 @@ class Account(AbstractBaseUser):
 
     def __str__(self):
         return self.email
-    
+
     def has_perm(self, perm, obj=None):
         return self.is_admin
-    
+
     def has_module_perms(self, add_label):
         return True

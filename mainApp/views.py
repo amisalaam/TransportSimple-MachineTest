@@ -1,4 +1,4 @@
-from django.shortcuts import render,redirect
+from django.shortcuts import render, redirect
 from .forms import QuestionForm
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
@@ -6,9 +6,7 @@ from django.contrib import messages
 from .models import Answer
 
 
-
-
-#FUNCTION FOR ASK A QUESTION
+# FUNCTION FOR ASK A QUESTION
 @login_required
 def ask_question(request):
     try:
@@ -25,12 +23,13 @@ def ask_question(request):
 
         return render(request, 'ask_question.html', {'form': form})
     except PermissionDenied:
-        messages.error(request, "Permission denied. Please log in to ask a question.")
-        
-        return redirect('login') 
+        messages.error(
+            request, "Permission denied. Please log in to ask a question.")
+
+        return redirect('login')
 
 
-#FUNCTION FOR LIKE ANSWER
+# FUNCTION FOR LIKE ANSWER
 @login_required
 def like_answer(request, answer_id):
     try:
@@ -41,11 +40,11 @@ def like_answer(request, answer_id):
         messages.error(request, "Answer not found.")
     except Exception as e:
         messages.error(request, f"An error occurred: {e}")
-    
+
     return redirect('home')
 
 
-#FUNCTION FOR UNLIKE ANSWER
+# FUNCTION FOR UNLIKE ANSWER
 @login_required
 def unlike_answer(request, answer_id):
     try:
@@ -58,4 +57,3 @@ def unlike_answer(request, answer_id):
         messages.error(request, f"An error occurred: {e}")
 
     return redirect('home')
-

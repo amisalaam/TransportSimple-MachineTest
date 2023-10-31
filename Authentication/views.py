@@ -1,11 +1,11 @@
-from django.shortcuts import render,redirect
-from .forms import RegistrationalForm,LoginForm
+from django.shortcuts import render, redirect
+from .forms import RegistrationalForm, LoginForm
 from django.contrib.auth import authenticate, login, logout
 from .models import Account
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.db.utils import IntegrityError 
-from mainApp.models import Question,Answer
+from django.db.utils import IntegrityError
+from mainApp.models import Question, Answer
 from mainApp.forms import AnswerForm
 # Create your views here.
 
@@ -13,9 +13,12 @@ from mainApp.forms import AnswerForm
 # HOME PAGE FUNCTIONS
 @login_required(login_url='/login')
 def home(request):
-    questions = Question.objects.exclude(user=request.user).order_by('-posted_date')
-    my_questions = Question.objects.filter(user=request.user).order_by('posted_date')
-    my_answers = Answer.objects.filter(user=request.user).order_by('posted_date')
+    questions = Question.objects.exclude(
+        user=request.user).order_by('-posted_date')
+    my_questions = Question.objects.filter(
+        user=request.user).order_by('posted_date')
+    my_answers = Answer.objects.filter(
+        user=request.user).order_by('posted_date')
 
     if request.method == 'POST':
         form = AnswerForm(request.POST)
@@ -23,7 +26,8 @@ def home(request):
             try:
                 new_answer = form.save(commit=False)
                 new_answer.user = request.user
-                new_answer.question = Question.objects.get(pk=request.POST['question_id'])
+                new_answer.question = Question.objects.get(
+                    pk=request.POST['question_id'])
                 new_answer.save()
                 messages.success(request, "Answer submitted successfully.")
                 return redirect('home')
@@ -32,7 +36,7 @@ def home(request):
             except Exception as e:
                 messages.error(request, f"An error occurred: {e}")
         else:
-            #FORM VALIDATION ERRORS
+            # FORM VALIDATION ERRORS
             for field, errors in form.errors.items():
                 for error in errors:
                     messages.error(request, f"Error in {field}: {error}")
@@ -42,18 +46,17 @@ def home(request):
     context = {
         'questions': questions,
         'form': form,
-        'my_questions':my_questions,
-        'my_answers':my_answers
+        'my_questions': my_questions,
+        'my_answers': my_answers
     }
     return render(request, "home.html", context)
 
 
-
-#FUNCTION FOR LOGIN
+# FUNCTION FOR LOGIN
 def signin(request):
     if request.user.is_authenticated:
         return redirect('home')
-    
+
     if request.method == 'POST':
         form = LoginForm(request.POST)
         try:
@@ -74,7 +77,7 @@ def signin(request):
                         messages.error(request, f"{field}: {error}")
         except Exception as e:
             messages.error(request, f"An error occurred: {e}")
-    
+
     else:
         form = LoginForm()
 
@@ -84,10 +87,11 @@ def signin(request):
     return render(request, 'signin.html', context)
 
 
-#FUNCTION FOR REGISTERING A USER
+# FUNCTION FOR REGISTERING A USER
 def register(request):
     if request.user.is_authenticated:
         return redirect('home')
+
     else:
         if request.method == 'POST':
             form = RegistrationalForm(request.POST)
@@ -96,29 +100,27 @@ def register(request):
                     full_name = form.cleaned_data['full_name']
                     email = form.cleaned_data['email']
                     password = form.cleaned_data['password']
-                    user = Account.objects.create_user(full_name=full_name, email=email, password=password)
+                    user = Account.objects.create_user(
+                        full_name=full_name, email=email,  password=password)
+
                     user.save()
-                    login(request, user)  # Log the user in after registration.
-                    messages.success(request, 'Registration successful. You are now logged in.')
-                    return redirect('home')
-            except IntegrityError:
-                messages.error(request, 'This email is already registered. Please use a different email.')
+                    messages.success(
+                        request, 'Registration successful. You can now log in.')
+                    return redirect('login')
             except Exception as e:
-                messages.error(request, f'An error occurred: {str(e)}')
+                messages.error(request, f'Registration failed: {str(e)}')
+                return redirect('register')
         else:
             form = RegistrationalForm()
-        
         context = {
             'form': form
         }
         return render(request, 'register.html', context)
-    
 
-#FUNCTION FOR LOGOUT
+
+# FUNCTION FOR LOGOUT
 @login_required(login_url='login')
 def signout(request):
     logout(request)
     messages.success(request, "Logout successfully")
     return redirect('login')
-
-
