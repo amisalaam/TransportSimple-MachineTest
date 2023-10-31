@@ -5,16 +5,30 @@ from .models import Account
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from mainApp.models import Question
+from mainApp.forms import AnswerForm
 # Create your views here.
 
 @login_required(login_url='/login')
 def home(request):
-    question = Question.objects.all().order_by('posted_date')
+    questions = Question.objects.all().order_by('-posted_date')
 
-    context={
-        'question':question
+    if request.method == 'POST':
+        form = AnswerForm(request.POST)
+        if form.is_valid():
+            new_answer = form.save(commit=False)
+            new_answer.user = request.user
+            new_answer.question = Question.objects.get(pk=request.POST['question_id'])
+
+            new_answer.save()
+            return redirect('home')
+
+    form = AnswerForm()
+
+    context = {
+        'questions': questions,
+        'form': form,
     }
-    return render(request,"home.html",context)
+    return render(request, "home.html", context)
 
 
 

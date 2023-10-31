@@ -2,7 +2,15 @@
 <html>
 <head>
     <title>Ask a Question</title>
-    
+    <!-- Add your CSS and other scripts if needed -->
+    <style>
+        .center-form {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+    </style>
 </head>
 <body>
     {% include 'navbar.html' %} 
@@ -12,21 +20,18 @@
                 <div class="card">
                     <div class="card-body">
                         <h1 class="card-title text-center">Ask a Question</h1>
-                        <form method="post">
+                        <form method="post" class="mb-3 center-form">
                             {% csrf_token %}
-                            {{ form.non_field_errors }}
-                            <div class="mb-3">
-                                <label for="{{ form.text.id_for_label }}" class="form-label">Question:</label>
+                            <div class="form-group">
                                 {{ form.question_text }}
-                                {{ form.text.errors }}
                             </div>
-                            <button type="submit" class="btn btn-primary">Submit</button>
+                            <button type="submit" class="btn btn-primary">Submit Question</button>
                         </form>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-    
+    <!-- Add your additional HTML content and scripts as needed -->
 </body>
 </html>

@@ -1,6 +1,8 @@
 from django.shortcuts import render,redirect
 from .forms import QuestionForm
 from django.contrib.auth.decorators import login_required
+from .models import Question, Answer
+from .forms import AnswerForm
 
 
 @login_required
@@ -14,3 +16,8 @@ def ask_question(request):
         form = QuestionForm(request.user)
 
     return render(request, 'ask_question.html', {'form': form})
+
+
+
+
+
